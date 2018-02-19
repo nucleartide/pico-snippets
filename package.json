@@ -6,8 +6,10 @@
     "start": "next start"
   },
   "dependencies": {
+    "@zeit/next-typescript": "^0.0.10",
     "next": "^5.0.0",
     "react": "^16.2.0",
-    "react-dom": "^16.2.0"
+    "react-dom": "^16.2.0",
+    "typescript": "^2.7.2"
   }
 }
