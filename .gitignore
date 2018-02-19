@@ -1,0 +1,8 @@
+# Parcel cache.
+.cache/
+
+# Parcel build output.
+dist/
+
+# Dependencies.
+node_modules/
