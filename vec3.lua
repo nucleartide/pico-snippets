@@ -20,7 +20,7 @@ end
 
 function vec3:normalize()
   local m = self:magnitude()
-  if m == 0 return
+  if (m == 0) return
   self.x /= m
   self.y /= m
   self.z /= m
