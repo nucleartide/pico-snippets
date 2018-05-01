@@ -1,6 +1,6 @@
 
 --
--- colors.
+-- colors util.
 --
 
 colors = {

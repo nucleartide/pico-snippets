@@ -1,6 +1,6 @@
 
 --
--- gravy.
+-- gravy util.
 --
 
 gravy = {}

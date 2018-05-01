@@ -1,6 +1,6 @@
 
 --
--- buttons.
+-- buttons util.
 --
 
 buttons = {
