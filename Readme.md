@@ -2,7 +2,7 @@
 
 Drop-in snippets for your PICO-8 game. Just copy and paste!
 
-![animation of pasting snippet into PICO-8](https://user-images.githubusercontent.com/914228/39469259-55d77472-4d05-11e8-8cd0-7b5e9263c653.gif)
+<img alt="animation of pasting snippet into PICO-8" src="https://user-images.githubusercontent.com/914228/39469259-55d77472-4d05-11e8-8cd0-7b5e9263c653.gif" width="500px" />
 
 ## Snippets
 
