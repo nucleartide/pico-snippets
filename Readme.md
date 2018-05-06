@@ -11,6 +11,7 @@ Drop-in snippets for your PICO-8 game. Just copy and paste!
 |`buttons.lua`|Enum for `btn()` numbers.|
 |`colors.lua`|Enum for `color()` numbers.|
 |`gravy.lua`|Gravity class.|
+|`project.lua`|Perspective projection utility.|
 |`vec3.lua`|3D vector class.|
 
 ## Testing
