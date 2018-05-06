@@ -7,10 +7,12 @@ gravy = {}
 gravy.__index = gravy
 
 function gravy.new(pos, gravity, max_dy)
-  self.pos     = pos
-  self.gravity = gravity or 0.15
-  self.max_dy  = max_dy  or 2
-  self.dy      = 0
+  return setmetatable({
+    pos     = pos
+    gravity = gravity or 0.15
+    max_dy  = max_dy  or 2
+    dy      = 0
+  }, gravy)
 end
 
 function gravy:update()
