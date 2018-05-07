@@ -1,6 +1,6 @@
 
 --
--- pset with perspective projection.
+-- pset() with perspective projection.
 --
 -- call with a camera position `vec3` to create a `pset` function.
 --
