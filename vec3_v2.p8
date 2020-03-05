@@ -20,3 +20,11 @@ function vec3.add(v1, v2)
     z = v1.z + v2.z,
   }
 end
+
+function vec3.scale(state, c)
+  return vec3.new {
+    x = state.x * c,
+    y = state.y * c,
+    z = state.z * c,
+  }
+end
