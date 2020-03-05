@@ -74,6 +74,17 @@ end
 -- subtract a shape from a shape.
 -- used to determine whether two boxes intersect.
 -- note: you likely want box:collides() instead.
-function box.minkowski_diff(a, b)
+function box.minkowski_difference(a, b)
   return a:minkowski_sum(b:negate())
+end
+
+function box.collides(a, b)
+  -- compute the minkowski difference.
+  local diff = a:minkowski_difference(b)
+
+  -- check if bound a and bound b are colliding.
+  return diff.top_left.x <= 0 and
+    diff.top_left.y <= 0 and
+    diff.bottom_right.x >= 0 and
+    diff.bottom_right.y >= 0, diff
 end
