@@ -8,3 +8,8 @@ function vec3_new(x, y, z)
 		z = z or 0,
 	}, vec3)
 end
+
+function vec3.zero(v)
+	v.x, v.y, v.z = 0, 0, 0
+	return v
+end
