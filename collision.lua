@@ -27,6 +27,33 @@ do
 
 		-- collide if origin is contained within minkowski difference.
 		local tlx, tly, brx, bry = a_tl.x, a_tl.y, a_br.x, a_br.y
-		return tlx<0 and tly<0 and brx>0 and bry>0
+		return (tlx<0 and tly<0 and brx>0 and bry>0), a_tl, a_br
 	end
+end
+
+function resolve_collision(a, b)
+	-- early return if not colliding.
+	local is_colliding, tl, br = collides(a, b)
+	if not is_colliding then return end
+
+	-- otherwise, determine the penetration vector by finding the closest side.
+	-- note that the y-axis takes precedence.
+
+	local min, d, px, py = 32767
+
+	d = abs(tl.y)
+	if d<min then px,py,min=0,tl.y,d end
+
+	d = abs(br.y)
+	if d<min then px,py,min=0,br.y,d end
+
+	d = abs(tl.x)
+	if d<min then px,py,min=tl.x,0,d end
+
+	d = abs(br.x)
+	if d<min then px,py,min=br.x,0,d end
+
+	-- resolve the collision by adding the penetration vector to collider a.
+	a.pos.x += px
+	a.pos.y += py
 end
