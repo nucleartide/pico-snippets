@@ -20,3 +20,10 @@ function vec3.mul(v, c)
 	v.z *= c
 	return v
 end
+
+function vec3.assign(a, b)
+	a.x = b.x
+	a.y = b.y
+	a.z = b.z
+	return a
+end
