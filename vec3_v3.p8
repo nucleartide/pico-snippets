@@ -41,3 +41,11 @@ function vec3.sub(a, b)
 	a.z -= b.z
 	return a
 end
+
+function vec3.tostr(v)
+	return v.x .. ',' .. v.y ',' .. v.z
+end
+
+function vec3.debug(v)
+	print(v:tostr())
+end
