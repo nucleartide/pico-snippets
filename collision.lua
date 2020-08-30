@@ -27,6 +27,6 @@ do
 
 		-- collide if origin is contained within minkowski difference.
 		local tlx, tly, brx, bry = a_tl.x, a_tl.y, a_br.x, a_br.y
-		return tlx<=0 and tly<=0 and brx>=0 and bry>=0
+		return tlx<0 and tly<0 and brx>0 and bry>0
 	end
 end
