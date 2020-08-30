@@ -13,3 +13,10 @@ function vec3.zero(v)
 	v.x, v.y, v.z = 0, 0, 0
 	return v
 end
+
+function vec3.mul(v, c)
+	v.x *= c
+	v.y *= c
+	v.z *= c
+	return v
+end
