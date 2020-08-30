@@ -27,3 +27,17 @@ function vec3.assign(a, b)
 	a.z = b.z
 	return a
 end
+
+function vec3.add(a, b)
+	a.x += b.x
+	a.y += b.y
+	a.z += b.z
+	return a
+end
+
+function vec3.sub(a, b)
+	a.x -= b.x
+	a.y -= b.y
+	a.z -= b.z
+	return a
+end
