@@ -49,3 +49,8 @@ end
 function vec3.debug(v)
 	print(v:tostr())
 end
+
+function vec3.damp(a, b, rem)
+	a.x, a.y, a.z = damp(a.x, b.x, rem), damp(a.y, b.y, rem), damp(a.z, b.z, rem)
+	return a
+end
