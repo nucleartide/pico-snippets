@@ -60,8 +60,21 @@ function draw_player(p)
 			:mul(10)
 		local perp_dir = p.swinging_start_dir:dupe()
 			:mul(10)
-		line(cx, cy, cx+dir.x, cy+dir.y, 8)
-		line(cx, cy, cx+perp_dir.x, cy+perp_dir.y, 9)
+		-- line(cx, cy, cx+dir.x, cy+dir.y, 8)
+		-- line(cx, cy, cx+perp_dir.x, cy+perp_dir.y, 9)
+
+		-- compute t.
+		local t = p.swinging_t / p.swinging_len
+
+		-- compute the in-between line.
+		local tween_line = perp_dir:dupe()
+			:lerp(dir, t)
+			:normalize()
+			:mul(15)
+			:round()
+
+		-- draw the line.
+		line(cx, cy, cx+tween_line.x, cy+tween_line.y, 8)
 	end
 end
 

@@ -117,3 +117,10 @@ function vec3.rotate(v, angle)
 	v.x, v.y = rotate(v.x, v.y, angle)
 	return v
 end
+
+function vec3.lerp(v1, v2, t)
+	v1.x = lerp(v1.x, v2.x, t)
+	v1.y = lerp(v1.y, v2.y, t)
+	v1.z = lerp(v1.z, v2.z, t)
+	return v1
+end
