@@ -10,6 +10,10 @@ debug = true
 function _init()
 	p1 = init_player()
 	e1 = init_enemy()
+	static_enemies = {
+		e1,
+	}
+	score = 0
 end
 
 function _update60()
@@ -24,7 +28,25 @@ function _update60()
 	apply_move(p1)
 
 	-- check for enemy sword collision.
-	collide_sword_enemy()
+	for e in all(static_enemies) do
+		local did_collide = collide_sword_enemy(e)
+		if did_collide then
+			del(static_enemies, e)
+			score += 1
+		end
+	end
+
+	-- check for player-enemy collision.
+	for e in all(static_enemies) do
+		local did_collide = collide_player_enemy(e)
+		if did_collide then
+			_update60 = function() end
+			_draw = function()
+				cls()
+				print('game over')
+			end
+		end
+	end
 
 	-- update bookkeeping vars.
 	if p1.state=='swinging' then
@@ -34,14 +56,26 @@ end
 
 function _draw()
 	cls(1)
-	draw_enemy(e1)
+	for e in all(static_enemies) do
+		draw_enemy(e1)
+	end
 	draw_player(p1)
 	if debug then
-		print(p1.vel.x .. ',' .. p1.vel.y .. ',' .. p1.vel.z)
-		print(p1.state)
-		print(p1.desired_vel.x .. ',' .. p1.desired_vel.y)
-		print('did sword hit' .. tostr(collide_sword_enemy()))
+		-- print(p1.vel.x .. ',' .. p1.vel.y .. ',' .. p1.vel.z)
+		-- print(p1.state)
+		-- print(p1.desired_vel.x .. ',' .. p1.desired_vel.y)
+		-- print('did sword hit' .. tostr(collide_sword_enemy()))
+		local c1, c2 = get_swing_corners()
+
+		if c1 and c2 then
+			local sx, sy = c1:world2screen()
+			pset(sx, sy, 15)
+
+			local sx, sy = c2:world2screen()
+			pset(sx, sy, 15)
+		end
 	end
+	print(score, 62, 120, 7)
 end
 
 -->8
@@ -94,7 +128,7 @@ end
 function draw_enemy(e)
 	local sx, sy = e.pos:world2screen()
 	sx, sy = round(sx), round(sy)
-	circfill(sx, sy, e.r, 14)
+	circfill(sx, sy, e.r, 3)
 end
 
 -->8
@@ -102,7 +136,7 @@ end
 
 function init_player()
 	return {
-		pos = vec3_new(),
+		pos = vec3_new(-30),
 		d_pos = vec3_new(),
 		vel = vec3_new(),
 		desired_vel = vec3_new(), -- should be normalized.
@@ -127,17 +161,35 @@ end
 -->8
 -- update functions.
 
-function collide_sword_enemy()
+function collide_player_enemy(enemy)
+	local tlx, tly = round(p1.pos.x-p1.w/2), round(p1.pos.y-p1.h)
+	local brx, bry = round(p1.pos.x+p1.w/2), round(p1.pos.y)
+	local e_pos = enemy.pos
+	return point_in_box(e_pos, vec3_new(tlx, tly), vec3_new(brx, bry))
+end
+
+function get_swing_corners()
 	if p1.state~='swinging' then
 		return
 	end
 
+	local cx = p1.pos.x
+	local cy = round(p1.pos.y - p1.h/2)
+
 	local dir = p1.swinging_dir:dupe():mul(15)
 	local perp_dir = p1.swinging_start_dir:dupe():mul(15)
-	local corner1 = vec3_new(p1.pos.x+dir.x, p1.pos.y+perp_dir.y)
-	local corner2 = vec3_new(p1.pos.x+perp_dir.x, p1.pos.y+dir.y)
+	local corner1 = vec3_new(cx+dir.x, cy+perp_dir.y)
+	local corner2 = vec3_new(cx+perp_dir.x, cy+dir.y)
+	return corner1, corner2
+end
 
-	return point_in_box(e1.pos, corner1, corner2)
+function collide_sword_enemy(enemy)
+	if p1.state~='swinging' then
+		return
+	end
+
+	local corner1, corner2 = get_swing_corners()
+	return point_in_box(enemy.pos, corner1, corner2)
 end
 
 function update_player_state()
