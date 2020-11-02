@@ -5,7 +5,7 @@ __lua__
 #include ../vec3_v3.p8
 #include ../math.lua
 
-debug = true
+debug = false
 
 function _init()
 	p1 = init_player()
@@ -33,6 +33,8 @@ function _update60()
 		if did_collide then
 			del(static_enemies, e)
 			score += 1
+
+			add(static_enemies, init_enemy())
 		end
 	end
 
@@ -44,6 +46,7 @@ function _update60()
 			_draw = function()
 				cls()
 				print('game over')
+				print('score:' .. score)
 			end
 		end
 	end
@@ -57,7 +60,7 @@ end
 function _draw()
 	cls(1)
 	for e in all(static_enemies) do
-		draw_enemy(e1)
+		draw_enemy(e)
 	end
 	draw_player(p1)
 	if debug then
@@ -65,6 +68,7 @@ function _draw()
 		-- print(p1.state)
 		-- print(p1.desired_vel.x .. ',' .. p1.desired_vel.y)
 		-- print('did sword hit' .. tostr(collide_sword_enemy()))
+		print(#static_enemies)
 		local c1, c2 = get_swing_corners()
 
 		if c1 and c2 then
@@ -152,8 +156,19 @@ function init_player()
 end
 
 function init_enemy()
+	local ex, ey = rnd(80)-40, rnd(80)-40
+	printh(ex .. ',' .. ey)
+	local dx, dy = abs(ex-p1.pos.x), abs(ey-p1.pos.y)
+	--[[
+	while dx<20 and dy<20 do
+		ex = rnd(80)-40
+		ey = rnd(80)-40
+		dx, dy = abs(ex-p1.pos.x), abs(ey-p1.pos.y)
+	end
+	]]
+
 	return {
-		pos = vec3_new(),
+		pos = vec3_new(ex, ey),
 		r = 3,
 	}
 end
@@ -213,9 +228,11 @@ function update_desired_vel(p)
 		v.x += 1
 	end
 	if i_up then
+		v.x = 0
 		v.y -= 1
 	end
 	if i_down then
+		v.x = 0
 		v.y += 1
 	end
 	if v.x~=0 and v.y~=0 then
