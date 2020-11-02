@@ -5,7 +5,7 @@ __lua__
 #include ../vec3_v3.p8
 #include ../math.lua
 
-debug = false
+debug = true
 
 function _init()
 	p1 = init_player()
@@ -23,6 +23,9 @@ function _update60()
 	-- movement.
 	apply_move(p1)
 
+	-- check for enemy sword collision.
+	collide_sword_enemy()
+
 	-- update bookkeeping vars.
 	if p1.state=='swinging' then
 		p1.swinging_t += 1
@@ -37,6 +40,7 @@ function _draw()
 		print(p1.vel.x .. ',' .. p1.vel.y .. ',' .. p1.vel.z)
 		print(p1.state)
 		print(p1.desired_vel.x .. ',' .. p1.desired_vel.y)
+		print('did sword hit' .. tostr(collide_sword_enemy()))
 	end
 end
 
@@ -77,6 +81,13 @@ function draw_player(p)
 
 		-- draw the line.
 		line(cx, cy, cx+tween_line.x, cy+tween_line.y, 8)
+
+		-- draw the collision box.
+		-- pset(cx, cy, 11)
+
+		-- get the opposing point so we can do a collision check.
+		-- dir.x, perp_dir.y
+		-- perp_dir.x, dir.y
 	end
 end
 
@@ -115,6 +126,19 @@ end
 
 -->8
 -- update functions.
+
+function collide_sword_enemy()
+	if p1.state~='swinging' then
+		return
+	end
+
+	local dir = p1.swinging_dir:dupe():mul(15)
+	local perp_dir = p1.swinging_start_dir:dupe():mul(15)
+	local corner1 = vec3_new(p1.pos.x+dir.x, p1.pos.y+perp_dir.y)
+	local corner2 = vec3_new(p1.pos.x+perp_dir.x, p1.pos.y+dir.y)
+
+	return point_in_box(e1.pos, corner1, corner2)
+end
 
 function update_player_state()
 	-- update state.
@@ -180,6 +204,13 @@ end
 
 function vec3.world2screen(v)
 	return v.x+64, v.y+64
+end
+
+function point_in_box(v, tl, br)
+	local min_x, max_x = min(tl.x, br.x), max(tl.x, br.x)
+	local min_y, max_y = min(tl.y, br.y), max(tl.y, br.y)
+	return min_x<=v.x and v.x<=max_x and
+		min_y<=v.y and v.y<=max_y
 end
 
 -->8
