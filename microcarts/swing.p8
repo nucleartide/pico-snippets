@@ -18,6 +18,7 @@ end
 function _draw()
 	cls(1)
 	draw_player(p1)
+	print(p1.vel.x .. ',' .. p1.vel.y .. ',' .. p1.vel.z)
 end
 
 -->8
@@ -30,7 +31,16 @@ function draw_player(p)
 	local bottom = round(sy)
 	local left = round(sx - p.w/2)
 	local right = round(sx + p.w/2)
+
+	-- draw the player's body.
 	rectfill(left, top, right, bottom, 7)
+
+	-- draw the player's direction,
+	-- so that we can draw a sword swing.
+	local cx, cy = round(sx), round(sy - p.h/2)
+	local dir = p.desired_vel:dupe()
+		:mul(10)
+	line(cx, cy, cx+dir.x, cy+dir.y, 8)
 end
 
 -->8
@@ -41,7 +51,7 @@ function init_player()
 		pos = vec3_new(),
 		d_pos = vec3_new(),
 		vel = vec3_new(),
-		desired_vel = vec3_new(),
+		desired_vel = vec3_new(), -- should be normalized.
 		speed = 100, -- pixels per second.
 		w = 8,
 		h = 8,
@@ -54,16 +64,16 @@ end
 function update_desired_vel(p)
 	p.desired_vel:zero()
 	if i_left then
-		p.desired_vel.x -= p.speed
+		p.desired_vel.x -= 1
 	end
 	if i_right then
-		p.desired_vel.x += p.speed
+		p.desired_vel.x += 1
 	end
 	if i_up then
-		p.desired_vel.y -= p.speed
+		p.desired_vel.y -= 1
 	end
 	if i_down then
-		p.desired_vel.y += p.speed
+		p.desired_vel.y += 1
 	end
 	if p.desired_vel.x~=0 and p.desired_vel.y~=0 then
 		p.desired_vel:mul(.707)
@@ -71,7 +81,8 @@ function update_desired_vel(p)
 end
 
 function apply_move(p)
-	p.vel:damp(p.desired_vel, .01)
+	local dir = p.desired_vel:dupe():mul(p.speed)
+	p.vel:damp(dir, .01)
 	p.d_pos
 		:assign(p.vel)
 		:mul(.0167)

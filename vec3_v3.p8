@@ -54,3 +54,43 @@ function vec3.damp(a, b, rem)
 	a.x, a.y, a.z = damp(a.x, b.x, rem), damp(a.y, b.y, rem), damp(a.z, b.z, rem)
 	return a
 end
+
+function vec3.dupe(v)
+	return vec3_new(v.x, v.y, v.z)
+end
+
+function vec3.round(v)
+	v.x = flr(v.x+.5)
+	v.y = flr(v.y+.5)
+	v.z = flr(v.z+.5)
+	return v
+end
+
+function vec3.normalize(v)
+	local d = v:mag()
+	if d==0 then return v end
+	v.x /= d
+	v.y /= d
+	v.z /= d
+	return v
+end
+
+function vec3.mag(a)
+	return a:dist_between(vec3_new())
+end
+
+function vec3.dist_between(a, b)
+	-- scale inputs down by 6 bits
+	local dx=(a.x-b.x)/64
+	local dy=(a.y-b.y)/64
+	local dz=(a.z-b.z)/64
+
+	-- get distance squared
+	local dsq=dx*dx + dy*dy + dz*dz
+
+	-- in case of overflow/wrap
+	if(dsq<0) then return 32767.99999 end
+
+	-- scale output back up by 6 bits
+	return sqrt(dsq)*64
+end
