@@ -9,6 +9,7 @@ debug = false
 
 function _init()
 	p1 = init_player()
+	e1 = init_enemy()
 end
 
 function _update60()
@@ -30,6 +31,7 @@ end
 
 function _draw()
 	cls(1)
+	draw_enemy(e1)
 	draw_player(p1)
 	if debug then
 		print(p1.vel.x .. ',' .. p1.vel.y .. ',' .. p1.vel.z)
@@ -78,6 +80,12 @@ function draw_player(p)
 	end
 end
 
+function draw_enemy(e)
+	local sx, sy = e.pos:world2screen()
+	sx, sy = round(sx), round(sy)
+	circfill(sx, sy, e.r, 14)
+end
+
 -->8
 -- init functions.
 
@@ -92,9 +100,16 @@ function init_player()
 		h = 8,
 		state = 'not_swinging', -- can be 'not_swinging' or 'swinging'.
 		swinging_t = 0, -- num frames spent in 'swinging' state.
-		swinging_len = 10, -- frame duration of the 'swinging' state.
+		swinging_len = 8, -- frame duration of the 'swinging' state.
 		swinging_dir = nil, -- vec3 that saves the current dir at time of swing.
 		swinging_start_dir = nil, -- vec3 that saves the starting dir of the sword swing.
+	}
+end
+
+function init_enemy()
+	return {
+		pos = vec3_new(),
+		r = 3,
 	}
 end
 
