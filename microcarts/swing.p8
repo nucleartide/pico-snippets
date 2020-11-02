@@ -11,14 +11,25 @@ end
 
 function _update60()
 	grab_inputs()
+
+	-- update player state.
+	update_player_state()
+
+	-- movement.
 	update_desired_vel(p1)
 	apply_move(p1)
+
+	-- update bookkeeping vars.
+	if p1.state=='swinging' then
+		p1.swinging_t += 1
+	end
 end
 
 function _draw()
 	cls(1)
 	draw_player(p1)
 	print(p1.vel.x .. ',' .. p1.vel.y .. ',' .. p1.vel.z)
+	print(p1.state)
 end
 
 -->8
@@ -37,10 +48,12 @@ function draw_player(p)
 
 	-- draw the player's direction,
 	-- so that we can draw a sword swing.
-	local cx, cy = round(sx), round(sy - p.h/2)
-	local dir = p.desired_vel:dupe()
-		:mul(10)
-	line(cx, cy, cx+dir.x, cy+dir.y, 8)
+	if p1.state=='swinging' then
+		local cx, cy = round(sx), round(sy - p.h/2)
+		local dir = p.desired_vel:dupe()
+			:mul(10)
+		line(cx, cy, cx+dir.x, cy+dir.y, 8)
+	end
 end
 
 -->8
@@ -55,11 +68,24 @@ function init_player()
 		speed = 100, -- pixels per second.
 		w = 8,
 		h = 8,
+		state = 'not_swinging', -- can be 'not_swinging' or 'swinging'.
+		swinging_t = 0, -- num frames spent in 'swinging' state.
+		swinging_len = 10, -- frame duration of the 'swinging' state.
 	}
 end
 
 -->8
 -- update functions.
+
+function update_player_state()
+	-- update state.
+	if i_z or i_x then
+		p1.state = 'swinging'
+	elseif p1.swinging_t==p1.swinging_len then
+		p1.state = 'not_swinging'
+		p1.swinging_t = 0
+	end
+end
 
 function update_desired_vel(p)
 	p.desired_vel:zero()
