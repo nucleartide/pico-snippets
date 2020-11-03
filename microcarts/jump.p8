@@ -6,10 +6,12 @@ __lua__
 
 --[[
 
-o horizontal collisions
-* vertical collisions
+x horizontal collisions
+o vertical collisions
 
 ]]
+
+assert(false, 'implement vertical collision before moving on')
 
 function _init()
 	p1 = init_player()
@@ -44,20 +46,23 @@ function _draw()
 	print('left:' ..
 		tostr(is_colliding_horiz(p1.pos, p1.w, p1.h, 'left'))
 	)
+	-- note that this will be true when touching a right wall.
+	-- as such, you should use another var to track when
+	-- a collision was detected.
 	print('right:' ..
 		tostr(is_colliding_horiz(p1.pos, p1.w, p1.h, 'right'))
 	)
+
+	local left, right, top, bottom = get_world_space_bounds()
+	print('left:' .. left)
+	print('right:' .. right)
 end
 
 -->8
 -- draw functions.
 
 function draw_player(p)
-	local left, right, top, bottom = get_bounds(
-		p.pos,
-		p.w,
-		p.h
-	)
+	local left, right, top, bottom = get_screen_space_bounds()
 	rectfill(left, top, right, bottom, 7)
 end
 
@@ -126,7 +131,7 @@ end
 -- side can be 'left' or 'right'.
 function is_colliding_horiz(pos, w, h, side)
 	-- get the bounds of the char.
-	local left, right, top, bottom, cx, cy = get_bounds(pos, w, h)
+	local left, right, top, bottom, cx, cy = get_world_space_bounds()
 	local x
 	if side=='left' then
 		x = left
@@ -136,10 +141,8 @@ function is_colliding_horiz(pos, w, h, side)
 		assert(false)
 	end
 
-	-- ensure we are always sweeping in whole number increments.
-	local incr = flr(h/3)
-
 	-- determine the value of is_colliding by sweeping.
+	local incr = h/3
 	local is_colliding = false
 	local tile_x
 	for i=-1,1 do
@@ -147,7 +150,7 @@ function is_colliding_horiz(pos, w, h, side)
 		local y = cy + i*incr
 
 		-- get sprite number in map space.
-		local sprite_num = mget(x/8, y/8)
+		local sprite_num = mget((x)/8, y/8)
 
 		-- get flags.
 		local is_wall = fget(sprite_num, 0)
@@ -184,22 +187,49 @@ function vec3.world2screen(v)
 	return v.x, v.y
 end
 
+function get_world_space_bounds()
+	local left, right, top, bottom, cx, cy
+
+	left = p1.pos.x - p1.w/2
+	right = p1.pos.x + p1.w/2
+	top = p1.pos.y - p1.h
+	bottom = p1.pos.y
+	cx = p1.pos.x
+	cy = p1.pos.y - p1.h/2
+
+	return left, right, top, bottom, cx, cy
+end
+
+function get_screen_space_bounds()
+	local left, right, top, bottom, cx, cy = get_world_space_bounds()
+
+	-- override left and right to guarantee correct width in
+	-- screen space.
+	left = cx - flr(p1.w/2)
+	right = cx + flr(p1.w/2)
+	if p1.w%2==0 then right-=1 end
+
+	-- override top to guarantee correct height in screen space.
+	top += 1
+
+	-- in the case where w=5,
+	-- subtract flr(p1.w/2) from cx to get left.
+	-- add flr(p1.w/2) to cx to get right.
+
+	-- in the case where w=6,
+	-- subtract flr(p1.w/2) from cx to get left.
+	-- add p1.w/2-1 to cx to get right.
+
+	return left, right, top, bottom
+end
+
 -- get the bounds of a rectangular character,
 -- while considering odd or even dimensions.
 --
 -- needed for fixing off-by-1 errors in collisions,
 -- because collisions are done in screen space when using the map.
 function get_bounds(pos, w, h)
-	local left
-	local right
-	local top
-	local bottom
-	local cx = pos.x
-	local cy
-	local res_left
-	local res_right
-	local res_top
-	local res_bottom
+	local left, right, top, bottom, cx, cy
 
 	if w%2==0 then
 		left = pos.x - w/2
@@ -213,7 +243,7 @@ function get_bounds(pos, w, h)
 
 	top = pos.y - h + 1
 	bottom = pos.y
-	cy = top + flr(h/2)
+	cx, cy = pos.x, top + flr(h/2)
 
 	return left, right, top, bottom, cx, cy
 end
