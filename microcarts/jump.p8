@@ -86,24 +86,32 @@ end
 
 function handle_horiz_collisions()
 	-- handle left collision.
-	local is_colliding_left, wx, resolve = is_colliding_horiz(
+	local is_colliding_left, tile_x = is_colliding_horiz(
 		p1.pos, p1.w, p1.h, 'left'
 	)
 	if is_colliding_left then
+		-- add half the width to the right of the tile.
+		-- ...
+		p1.pos.x = tile_x*8 +8 +flr(p1.w/2)
+
+		-- assert(false)
 		-- resolve player pos.
-		p1.pos.x = wx + resolve
+		-- p1.pos.x = wx + resolve
 
 		-- resolve player vel.
 		p1.vx = 0
 	end
 
 	-- handle right collision.
-	local is_colliding_right, wx, resolve = is_colliding_horiz(
+	local is_colliding_right, tile_x = is_colliding_horiz(
 		p1.pos, p1.w, p1.h, 'right'
 	)
 	if is_colliding_right then
+		-- add half the width to the left of the tile.
+		p1.pos.x = tile_x*8 - ceil(p1.w/2)
+
 		-- resolve player pos.
-		p1.pos.x = wx + resolve
+		-- p1.pos.x = wx + resolve
 
 		-- resolve player vel.
 		p1.vx = 0
@@ -130,6 +138,7 @@ function is_colliding_horiz(pos, w, h, side)
 
 	-- determine the value of is_colliding by sweeping.
 	local is_colliding = false
+	local tile_x
 	for i=-1,1 do
 		-- get y test value.
 		local y = cy + i*incr
@@ -141,8 +150,14 @@ function is_colliding_horiz(pos, w, h, side)
 		local is_wall = fget(sprite_num, 0)
 
 		-- if tile is a wall, there is a collision.
-		if is_wall then is_colliding = true end
+		if is_wall then
+			is_colliding = true
+			tile_x = flr(x/8)
+			break
+		end
 	end
+
+	return is_colliding, tile_x
 end
 
 function update_vx()
@@ -175,10 +190,16 @@ function get_bounds(pos, w, h)
 	local bottom
 	local cx = pos.x
 	local cy
+	local res_left
+	local res_right
+	local res_top
+	local res_bottom
 
 	if w%2==0 then
 		left = pos.x - w/2
 		right = pos.x + w/2 - 1
+		res_left = w/2
+		res_right = -w/2 +1
 	else
 		left = pos.x - flr(w/2)
 		right = pos.x + flr(w/2)
@@ -188,12 +209,6 @@ function get_bounds(pos, w, h)
 	bottom = pos.y
 	cy = top + flr(h/2)
 
-	assert(left%1==0)
-	assert(right%1==0)
-	assert(top%1==0)
-	assert(bottom%1==0)
-	assert(cx%1==0)
-	assert(cy%1==0)
 	return left, right, top, bottom, cx, cy
 end
 __gfx__
