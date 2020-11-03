@@ -51,12 +51,12 @@ end
 -- draw functions.
 
 function draw_player(p)
-	local sx, sy = p.pos:world2screen()
-	local top = sy - p.h
-	local bottom = sy
-	local left = sx - p.w/2
-	local right = sx + p.w/2
-	rectfill(round(left), round(top), round(right), round(bottom), 7)
+	local left, right, top, bottom = get_bounds(
+		p.pos,
+		p.w,
+		p.h
+	)
+	rectfill(left, top, right, bottom, 7)
 end
 
 -->8
@@ -98,49 +98,50 @@ function handle_horiz_collisions()
 	end
 
 	-- handle right collision.
-	-- ...
+	local is_colliding_right, wx, resolve = is_colliding_horiz(
+		p1.pos, p1.w, p1.h, 'right'
+	)
+	if is_colliding_right then
+		-- resolve player pos.
+		p1.pos.x = wx + resolve
+
+		-- resolve player vel.
+		p1.vx = 0
+	end
 end
 
 -- given the pos, w, and h of an entity,
 -- determine if the entity is colliding with walls.
 -- side can be 'left' or 'right'.
 function is_colliding_horiz(pos, w, h, side)
-	-- determine x based on side.
+	-- get the bounds of the char.
+	local left, right, top, bottom, cx, cy = get_bounds(pos, w, h)
 	local x
-	local resolve
 	if side=='left' then
-		x = pos.x - w/2
-		resolve = w/2
+		x = left
 	elseif side=='right' then
-		x = pos.x + w/2
-		resolve = -w/2
+		x = right
 	else
 		assert(false)
 	end
 
-	-- determine the value of is_colliding.
-	local incr, is_colliding, cy = h/3, false, pos.y-h/2
-	local tile_x = 0
-	for y=cy-incr,cy+incr,incr do
-		-- get the sprite number by using the map coords.
-		local sprite_num = mget(x/8, y/8)
-		printh('sprite num:' .. sprite_num)
+	-- ensure we are always sweeping in whole number increments.
+	local incr = flr(h/3)
 
-		-- get the flags.
+	-- determine the value of is_colliding by sweeping.
+	local is_colliding = false
+	for i=-1,1 do
+		-- get y test value.
+		local y = cy + i*incr
+
+		-- get sprite number in map space.
+		local sprite_num = mget(x/8, y/8)
+
+		-- get flags.
 		local is_wall = fget(sprite_num, 0)
 
-		-- char is colliding if tile is wall.
-		if is_wall then
-			is_colliding = true
-			tile_x = flr(x/8)
-		end
-	end
-
-	-- return result.
-	if is_colliding then
-		return true, tile_x*8+8, resolve
-	else
-		return false
+		-- if tile is a wall, there is a collision.
+		if is_wall then is_colliding = true end
 	end
 end
 
@@ -160,6 +161,40 @@ end
 
 function vec3.world2screen(v)
 	return v.x, v.y
+end
+
+-- get the bounds of a rectangular character,
+-- while considering odd or even dimensions.
+--
+-- needed for fixing off-by-1 errors in collisions,
+-- because collisions are done in screen space when using the map.
+function get_bounds(pos, w, h)
+	local left
+	local right
+	local top
+	local bottom
+	local cx = pos.x
+	local cy
+
+	if w%2==0 then
+		left = pos.x - w/2
+		right = pos.x + w/2 - 1
+	else
+		left = pos.x - flr(w/2)
+		right = pos.x + flr(w/2)
+	end
+
+	top = pos.y - h + 1
+	bottom = pos.y
+	cy = top + flr(h/2)
+
+	assert(left%1==0)
+	assert(right%1==0)
+	assert(top%1==0)
+	assert(bottom%1==0)
+	assert(cx%1==0)
+	assert(cy%1==0)
+	return left, right, top, bottom, cx, cy
 end
 __gfx__
 00000000222222220000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
