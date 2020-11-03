@@ -124,3 +124,8 @@ function vec3.lerp(v1, v2, t)
 	v1.z = lerp(v1.z, v2.z, t)
 	return v1
 end
+
+function grab_inputs()
+	i_left, i_right, i_up, i_down, i_z, i_x = btn(0), btn(1), btn(2), btn(3), btn(4), btn(5)
+	p_left, p_right, p_up, p_down, p_z, p_x = btnp(0), btnp(1), btnp(2), btnp(3), btnp(4), btnp(5)
+end
