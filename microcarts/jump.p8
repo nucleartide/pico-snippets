@@ -21,7 +21,9 @@ function _update60()
 
 	-- movement.
 	update_vx()
-	move_horizontally()
+	update_vy()
+	p1.pos.x += p1.vx * .0167
+	p1.pos.y += p1.vy * .0167
 
 	-- resolve collisions.
 	handle_horiz_collisions()
@@ -69,6 +71,7 @@ function init_player()
 
 		-- horizontal velocity.
 		vx = 0,
+		vy = 0,
 
 		-- width.
 		w = 6,
@@ -167,8 +170,11 @@ function update_vx()
 	p1.vx = damp(p1.vx, desired_vx, .01)
 end
 
-function move_horizontally()
-	p1.pos.x += p1.vx * .0167
+function update_vy()
+	local desired_vy = 0
+	if i_up then desired_vy -= p1.speed end
+	if i_down then desired_vy += p1.speed end
+	p1.vy = damp(p1.vy, desired_vy, .01)
 end
 
 -->8
